@@ -2,7 +2,7 @@
     "name": "ghosttext",
     "displayName": "GhostText",
     "description": "Use your text editor to write in your browser. Everything you type in the editor will be instantly updated in the browser (and vice versa).",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "publisher": "tokoph",
     "icon": "images/gticon.png",
     "engines": {
