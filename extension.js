@@ -55,7 +55,7 @@ class OnMessage {
             this.updateEditorText(request.text);
 
             this.disposables.push(workspace.onDidCloseTextDocument((doc) => {
-              if(doc == this.document) {
+              if(doc == this.document && doc.isClosed) {
                 this.closed = true;
                 this.webSocketConnection.close();
                 this.doCleanup();
