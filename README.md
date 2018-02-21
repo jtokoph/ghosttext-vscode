@@ -1,5 +1,5 @@
 # GhostText for Visual Studio Code
-Use the Atom editor to write in your browser. Everything you type in the editor will be instantly updated in the browser (and vice versa).
+Use VSCODE editor to write in your browser. Everything you type in the editor will be instantly updated in the browser (and vice versa).
 
 ## Instructions
 
