@@ -1,6 +1,5 @@
 var vscode = require('vscode');
-var { Range, Position } = vscode;
-var { workspace, window, commands } = vscode;
+var { Range, Position, workspace, window, commands, languages } = vscode;
 var http = require('http');
 var ws = require('nodejs-websocket');
 var tmp = require('tmp');
@@ -29,6 +28,8 @@ class OnMessage {
   }
 
   updateEditorText(text) {
+    languages.setTextDocumentLanguage(this.editor.document, getConfig().default_syntax);
+
     this.editor.edit((editBuilder) => {
       var lineCount = this.editor.document.lineCount;
       var lastLine = this.editor.document.lineAt(lineCount - 1);
@@ -48,39 +49,39 @@ class OnMessage {
         this.cleanupCallback = cleanupCallback;
 
         workspace.openTextDocument(path)
-        .then((textDocument) => {
-          this.document = textDocument;
-          window.showTextDocument(textDocument).then((editor) => {
-            this.editor = editor;
-            this.updateEditorText(request.text);
+          .then((textDocument) => {
+            this.document = textDocument;
+            window.showTextDocument(textDocument).then((editor) => {
+              this.editor = editor;
+              this.updateEditorText(request.text);
 
-            this.disposables.push(workspace.onDidCloseTextDocument((doc) => {
-              if(doc == this.document && doc.isClosed) {
-                this.closed = true;
-                this.webSocketConnection.close();
-                this.doCleanup();
-              }
-            }));
-
-            this.disposables.push(workspace.onDidChangeTextDocument((event) => {
-              if(event.document == this.document) {
-                let changedText = this.document.getText();
-                if (changedText !== this.remoteChangedText) {
-                  var change = {
-                    title: this.editorTitle,
-                    text:  changedText,
-                    syntax: 'TODO',
-                    selections: []
-                  };
-                  change = JSON.stringify(change);
-
-                  // empty doc change event fires before close. Work around race.
-                  return setTimeout(() => this.closed || this.webSocketConnection.sendText(change), 50);
+              this.disposables.push(workspace.onDidCloseTextDocument((doc) => {
+                if (doc == this.document && doc.isClosed) {
+                  this.closed = true;
+                  this.webSocketConnection.close();
+                  this.doCleanup();
                 }
-              }
-            }));
+              }));
+
+              this.disposables.push(workspace.onDidChangeTextDocument((event) => {
+                if (event.document == this.document) {
+                  let changedText = this.document.getText();
+                  if (changedText !== this.remoteChangedText) {
+                    var change = {
+                      title: this.editorTitle,
+                      text: changedText,
+                      syntax: "TODO",
+                      selections: []
+                    };
+                    change = JSON.stringify(change);
+
+                    // empty doc change event fires before close. Work around race.
+                    return setTimeout(() => this.closed || this.webSocketConnection.sendText(change), 50);
+                  }
+                }
+              }));
+            });
           });
-        });
       });
     } else {
       this.updateEditorText(request.text);
@@ -91,11 +92,15 @@ class OnMessage {
 
 var httpStatusServer = null;
 
+function getConfig() {
+  return workspace.getConfiguration('ghosttext');
+}
+
 var activate = (context) => {
   console.log('Activating GhostText');
 
   var disposable = commands.registerCommand('extension.enableGhostText', () => {
-      window.showInformationMessage('Ghost text has been enabled!');
+    window.showInformationMessage('Ghost text has been enabled!');
   });
 
   context.subscriptions.push(disposable);
