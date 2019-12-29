@@ -66,9 +66,13 @@ class OnMessage {
               if(event.document == this.document) {
                 let changedText = this.document.getText();
                 if (changedText !== this.remoteChangedText) {
+                  if (changedText) {
+                    this.remoteChangedText = changedText
+                  }
+                  
                   var change = {
                     title: this.editorTitle,
-                    text:  changedText,
+                    text:  changedText || this.remoteChangedText,
                     syntax: 'TODO',
                     selections: []
                   };
