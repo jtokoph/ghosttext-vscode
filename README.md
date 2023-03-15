@@ -1,3 +1,7 @@
+### 👋 Consider using the new [official extension](https://marketplace.visualstudio.com/items?itemName=fregante.ghost-text) instead
+
+---
+
 # GhostText for Visual Studio Code
 Use VSCODE editor to write in your browser. Everything you type in the editor will be instantly updated in the browser (and vice versa).
 
